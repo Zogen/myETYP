@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">myΕΤΥΠ</string>
+    <string name="app_logo">App Logo</string>
+    <string name="welcome">Καλωσόρισες, κε Υπεύθυνε ΕΤΥΠ!</string>
+    <string name="pantry">Ντουλάπι ΔΙΚΥΒ</string>
+    <string name="grocery_list">Λίστα ΕΤΥΠ</string>
+    <string name="add_pantry_item">Προσθήκη</string>
+    <string name="add_etyp_item">Προσθήκη</string>
+    <string name="move_etyp_to_pantry">Μεταφορά στο ντουλάπι</string>
+</resources>

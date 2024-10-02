@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp"
+    android:layout_marginTop="8dp"
+    app:cardElevation="4dp"
+    app:cardCornerRadius="8dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="8dp">
+
+        <!-- Item Name -->
+        <TextView
+            android:id="@+id/pantryItemName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Item Name"
+            android:textSize="16sp"
+            app:layout_constraintWidth_percent="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/decrementButton"/>
+
+        <!-- Decrement Button (-) -->
+        <ImageButton
+            android:id="@+id/decrementButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="Decrease Quantity"
+            android:src="@drawable/baseline_remove_24"
+            android:background="@android:color/transparent"
+            android:padding="4dp"
+            app:tint="@color/colorPrimaryDark"
+            app:layout_constraintStart_toEndOf="@id/pantryItemName"
+            app:layout_constraintEnd_toStartOf="@+id/pantryItemQuantity"
+            app:layout_constraintTop_toTopOf="@id/pantryItemQuantity"
+            app:layout_constraintBottom_toBottomOf="@id/pantryItemQuantity" />
+
+        <!-- Item Quantity -->
+        <TextView
+            android:id="@+id/pantryItemQuantity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="1"
+            android:textSize="16sp"
+            android:gravity="center"
+            app:layout_constraintStart_toEndOf="@id/decrementButton"
+            app:layout_constraintEnd_toStartOf="@+id/incrementButton"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+        <!-- Increment Button (+) -->
+        <ImageButton
+            android:id="@+id/incrementButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="Increase Quantity"
+            android:src="@drawable/baseline_add_24"
+            android:background="@android:color/transparent"
+            android:padding="4dp"
+            app:tint="@color/colorPrimaryDark"
+            app:layout_constraintStart_toEndOf="@id/pantryItemQuantity"
+            app:layout_constraintTop_toTopOf="@id/pantryItemQuantity"
+            app:layout_constraintBottom_toBottomOf="@id/pantryItemQuantity" />
+
+        <!-- Remove Item Button (X) -->
+        <ImageButton
+            android:id="@+id/removePantryItemButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="Remove Pantry Item"
+            android:src="@drawable/baseline_delete_forever_24"
+            android:background="@android:color/transparent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:tint="@color/colorPrimaryDark" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.cardview.widget.CardView>

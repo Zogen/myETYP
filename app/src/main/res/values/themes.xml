@@ -1,0 +1,8 @@
+<resources>
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.Material3.DayNight">
+        <item name="colorPrimary">@color/colorPrimaryDark</item>
+        <item name="colorPrimaryVariant">@color/colorPrimary</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+    </style>
+</resources>

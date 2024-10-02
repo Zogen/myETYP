@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "461695520682",
+    "project_id": "myetyp-7c3aa",
+    "storage_bucket": "myetyp-7c3aa.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:461695520682:android:37679ef9789db0c8c865d3",
+        "android_client_info": {
+          "package_name": "com.example.my"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAQHwKk3k6QWEOIp4X-obqFtYO5DV7dQAw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
