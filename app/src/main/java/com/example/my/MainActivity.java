@@ -15,6 +15,11 @@ import android.view.animation.AnimationUtils;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
+import java.util.Calendar;
 
 public class MainActivity extends BaseActivity {
 
@@ -115,6 +120,7 @@ public class MainActivity extends BaseActivity {
         // Save the logo state in savedInstanceState
         outState.putBoolean(LOGO_STATE_KEY, isLogoOne);
     }
+
 
 
 }

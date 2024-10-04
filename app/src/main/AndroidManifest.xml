@@ -27,6 +27,7 @@
         <activity android:name=".TransactionHistoryActivity"
             android:parentActivityName=".EtypListActivity"/>
         <activity android:name=".BaseActivity" />
+
     </application>
 
 </manifest>

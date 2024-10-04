@@ -5,6 +5,8 @@ public class PantryItem {
     private String name;
     private int quantity;
 
+    public PantryItem() {}
+
     public PantryItem(int id, String name, int quantity) {
         this.id = id;
         this.name = name;
