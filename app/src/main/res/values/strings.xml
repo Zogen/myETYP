@@ -7,4 +7,5 @@
     <string name="add_pantry_item">Προσθήκη</string>
     <string name="add_etyp_item">Προσθήκη</string>
     <string name="move_etyp_to_pantry">Μεταφορά στο ντουλάπι</string>
+    <string name="reqList">Απαιτούμενο Απόθεμα</string>
 </resources>

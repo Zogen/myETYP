@@ -48,5 +48,13 @@
             android:text="@string/grocery_list"
             android:layout_marginTop="16dp" />
 
+        <!-- Desired Supplies List Button -->
+        <Button
+            android:id="@+id/reqListButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/reqList"
+            android:layout_marginTop="16dp" />
+
     </LinearLayout>
 </ScrollView>

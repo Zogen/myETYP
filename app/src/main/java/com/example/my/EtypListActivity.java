@@ -155,8 +155,24 @@ public class EtypListActivity extends BaseActivity {
     // This method is to be used when the user has bought groceries,
     // and will move all items from the grocery list to the pantry
     private void moveGroceryItemsToPantry() {
-        if (!groceryList.isEmpty()) {
-            for (EtypItem etypItem : groceryList) {
+        // Create a list to hold the items to be moved
+        List<EtypItem> itemsToMove = new ArrayList<>();
+
+        // Check if any items are highlighted
+        for (EtypItem etypItem : groceryList) {
+            if (etypItem.isChecked()) {
+                itemsToMove.add(etypItem); // Add checked items to the list
+            }
+        }
+
+        // If no items are highlighted, move all items
+        if (itemsToMove.isEmpty()) {
+            itemsToMove.addAll(groceryList); // Add all items if none are selected
+        }
+
+        // Move the selected or all items
+        if (!itemsToMove.isEmpty()) {
+            for (EtypItem etypItem : itemsToMove) {
                 String itemName = etypItem.getName();
                 int groceryQuantity = etypItem.getQuantity();
 
@@ -180,8 +196,8 @@ public class EtypListActivity extends BaseActivity {
                 dbHelper.deleteGroceryItem(etypItem.getId());
             }
 
-            // Clear the grocery list and refresh the view
-            groceryList.clear();
+            // Clear the selected items from the grocery list
+            groceryList.removeAll(itemsToMove);
             adapter.notifyDataSetChanged();
 
             // Notify user
@@ -190,6 +206,7 @@ public class EtypListActivity extends BaseActivity {
             Toast.makeText(this, "Αφού είναι άδεια η λίστα ρε γιωτά", Toast.LENGTH_SHORT).show();
         }
     }
+
 
 //    // Override to add menu
 //    @Override

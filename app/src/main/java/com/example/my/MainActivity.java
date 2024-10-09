@@ -5,20 +5,31 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.Settings;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.Manifest;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.widget.Toast;
+
 import java.util.Calendar;
 
 public class MainActivity extends BaseActivity {
@@ -28,6 +39,8 @@ public class MainActivity extends BaseActivity {
     private static final String PREFS_NAME = "LogoPrefs";
     private static final String LOGO_KEY = "current_logo";
     private static final String LOGO_STATE_KEY = "logo_state";
+    private static final int REQUEST_WRITE_STORAGE = 112;
+    private static final int REQUEST_MANAGE_STORAGE = 113;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +76,7 @@ public class MainActivity extends BaseActivity {
         //set up buttons and listeners
         Button pantryButton = findViewById(R.id.pantryButton);
         Button etypListButton = findViewById(R.id.etypListButton);
+        Button reqListButton = findViewById(R.id.reqListButton);
 
         pantryButton.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, PantryActivity.class);
@@ -74,6 +88,31 @@ public class MainActivity extends BaseActivity {
             startActivity(intent);
         });
 
+        reqListButton.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, RequiredSuppliesActivity.class);
+            startActivity(intent);
+        });
+
+
+
+    }
+
+    // Handle the permission request result
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_WRITE_STORAGE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                proceedWithStorageAccess();
+            } else {
+                Toast.makeText(this, "Storage permission denied", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    private void proceedWithStorageAccess() {
+        // Access storage here
+        Toast.makeText(this, "Storage permission granted", Toast.LENGTH_SHORT).show();
     }
 
     private void setLogoImage() {

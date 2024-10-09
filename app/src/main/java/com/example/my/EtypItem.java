@@ -4,6 +4,7 @@ public class EtypItem {
     private int id;
     private String name;
     private int quantity;
+    private boolean isChecked;
 
     public EtypItem(int id, String name, int quantity) {
         this.id = id;
@@ -26,4 +27,13 @@ public class EtypItem {
     }
 
     public void setQuantity(int quantity) { this.quantity = quantity; }
+
+    public boolean isChecked() {
+        return isChecked;
+    }
+
+    public void setChecked(boolean checked) {
+        isChecked = checked;
+    }
+
 }

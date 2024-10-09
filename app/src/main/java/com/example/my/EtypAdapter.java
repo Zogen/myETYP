@@ -2,6 +2,7 @@ package com.example.my;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.graphics.Color;
 import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +15,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
@@ -44,6 +47,22 @@ public class EtypAdapter extends RecyclerView.Adapter<EtypAdapter.GroceryViewHol
         // Set item name and quantity
         holder.itemName.setText(item.getName());
         holder.itemQuantity.setText(String.valueOf(item.getQuantity()));
+
+        // Highlight if checked, modify CardView properties
+        if (item.isChecked()) {
+            holder.cardView.setCardBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.card_highlight)); // Highlighted color
+            holder.cardView.setCardElevation(8f); // Elevate the selected card
+        } else {
+            holder.cardView.setCardBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.card_bg)); // Default color
+            holder.cardView.setCardElevation(4f); // Default elevation
+        }
+
+        // Long click to select/deselect item
+        holder.itemView.setOnLongClickListener(v -> {
+            item.setChecked(!item.isChecked()); // Toggle checked state
+            notifyItemChanged(position); // Update the item UI
+            return true;
+        });
 
         holder.decrementButton.setOnClickListener(v -> {
             int currentQuantity = item.getQuantity();
@@ -87,9 +106,8 @@ public class EtypAdapter extends RecyclerView.Adapter<EtypAdapter.GroceryViewHol
         });
 
         // Long press listener to update item name and quantity
-        holder.itemView.setOnLongClickListener(v -> {
+        holder.itemView.setOnClickListener(v -> {
             showEditGroceryItemDialog(item, position);
-            return true;
         });
 
     }
@@ -150,6 +168,7 @@ public class EtypAdapter extends RecyclerView.Adapter<EtypAdapter.GroceryViewHol
     public static class GroceryViewHolder extends RecyclerView.ViewHolder {
         TextView itemName, itemQuantity;
         ImageButton removeItemButton, decrementButton, incrementButton;
+        CardView cardView;
 
         public GroceryViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -158,6 +177,7 @@ public class EtypAdapter extends RecyclerView.Adapter<EtypAdapter.GroceryViewHol
             removeItemButton = itemView.findViewById(R.id.removeItemButton);
             decrementButton = itemView.findViewById(R.id.decrementButton);
             incrementButton = itemView.findViewById(R.id.incrementButton);
+            cardView = itemView.findViewById(R.id.card_view);
         }
     }
 }

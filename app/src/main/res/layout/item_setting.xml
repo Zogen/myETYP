@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="16dp">
+
+    <!-- Icon for the setting -->
+    <ImageView
+        android:id="@+id/setting_icon"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_gravity="center_vertical"
+        android:contentDescription="Setting Icon"
+        app:tint="@color/colorPrimaryDark" />
+
+    <!-- Title for the setting -->
+    <TextView
+        android:id="@+id/setting_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginStart="16dp"
+        android:layout_weight="1"
+        android:text="Setting Title"
+        android:textSize="18sp"
+        android:textColor="@color/colorPrimaryDark" />
+
+    <!-- Switch for night mode (visible only for night mode option) -->
+    <Switch
+        android:id="@+id/night_mode_switch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:visibility="gone" /> <!-- Hidden by default, shown for the toggle night mode option -->
+</LinearLayout>

@@ -6,5 +6,10 @@
     <color name="colorPrimary">#8FBC8F</color>
     <color name="colorPrimaryDark">#556B2F</color>
     <color name="colorAccent">#FFFFFFFF</color>
+
+    <color name="card_highlight">#8FBC8F</color>
+
+    <color name="card_bg">#FFFFFF</color>
+
 </resources>
 
