@@ -95,8 +95,9 @@ public class PantryAdapter extends RecyclerView.Adapter<PantryAdapter.PantryView
         });
 
         // Long press listener to update item name and quantity
-        holder.itemView.setOnClickListener(v -> {
+        holder.itemView.setOnLongClickListener(v -> {
             showEditPantryItemDialog(item, position);
+            return true;
         });
     }
 

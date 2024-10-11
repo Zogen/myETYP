@@ -21,6 +21,7 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -139,6 +140,7 @@ public class SettingsAdapter extends RecyclerView.Adapter<SettingsAdapter.Settin
                         ));
 
                         // Show the dialog
+                        dialog.setCancelable(true);
                         dialog.show();
                         break;
 
@@ -178,7 +180,7 @@ public class SettingsAdapter extends RecyclerView.Adapter<SettingsAdapter.Settin
                             appAuthor.setText("Author: ΔΙΚΥΒ"); // Replace with the author's name
 
                             long lastUpdateTime = packageInfo.lastUpdateTime;
-                            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+                            SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
                             String formattedDate = dateFormat.format(new Date(lastUpdateTime));
                             appLastUpdate.setText("Last Update: " + formattedDate);
 
@@ -214,10 +216,14 @@ public class SettingsAdapter extends RecyclerView.Adapter<SettingsAdapter.Settin
     }
 
     public void optionExport() {
+        String appLabel = context.getPackageManager().getApplicationLabel(context.getApplicationInfo()).toString();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss", Locale.getDefault());
+        Calendar calendar = Calendar.getInstance();
+
         Intent exportIntent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
         exportIntent.addCategory(Intent.CATEGORY_OPENABLE);
         exportIntent.setType("application/octet-stream");
-        exportIntent.putExtra(Intent.EXTRA_TITLE, "AppDatabaseBackup.db"); // Specify the file name
+        exportIntent.putExtra(Intent.EXTRA_TITLE, appLabel + " " + sdf.format(calendar.getTime()) + ".db"); // Specify the file name
         exportLauncher.launch(exportIntent); // Call exportLauncher here
     }
 

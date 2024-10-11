@@ -282,15 +282,31 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.close();
     }
 
-    // Get all transaction history records
     public Cursor getAllTransactions() {
         SQLiteDatabase db = this.getReadableDatabase();
-        String query = "SELECT " + COLUMN_TRANSACTION_ID + " AS _id, " +
-                COLUMN_TRANSACTION_ITEM_NAME + ", " +
-                COLUMN_TRANSACTION_QUANTITY + ", " +
-                COLUMN_TRANSACTION_DATE + " FROM " + TABLE_TRANSACTION_HISTORY;
-        return db.rawQuery(query, null);
+        return db.rawQuery("SELECT name, quantity, date FROM transaction_history", null);
     }
+
+    public List<TransactionItem> getTransactionItemsFromCursor(Cursor cursor) {
+        List<TransactionItem> transactionItems = new ArrayList<>();
+
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                String itemName = cursor.getString(cursor.getColumnIndex("name")); // Check column name
+                int quantity = cursor.getInt(cursor.getColumnIndex("quantity")); // Check column name
+                String date = cursor.getString(cursor.getColumnIndex("date")); // Check column name
+                transactionItems.add(new TransactionItem(itemName, quantity, date));
+            } while (cursor.moveToNext());
+        }
+
+        if (cursor != null) {
+            cursor.close(); // Always close the cursor to avoid memory leaks
+        }
+
+        return transactionItems;
+    }
+
+
 
     // Insert a required supply item
     public void insertRequiredSupply(String name, int quantity) {

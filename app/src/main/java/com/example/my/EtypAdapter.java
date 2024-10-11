@@ -58,10 +58,9 @@ public class EtypAdapter extends RecyclerView.Adapter<EtypAdapter.GroceryViewHol
         }
 
         // Long click to select/deselect item
-        holder.itemView.setOnLongClickListener(v -> {
+        holder.itemView.setOnClickListener(v -> {
             item.setChecked(!item.isChecked()); // Toggle checked state
             notifyItemChanged(position); // Update the item UI
-            return true;
         });
 
         holder.decrementButton.setOnClickListener(v -> {
@@ -106,8 +105,9 @@ public class EtypAdapter extends RecyclerView.Adapter<EtypAdapter.GroceryViewHol
         });
 
         // Long press listener to update item name and quantity
-        holder.itemView.setOnClickListener(v -> {
+        holder.itemView.setOnLongClickListener(v -> {
             showEditGroceryItemDialog(item, position);
+            return true;
         });
 
     }

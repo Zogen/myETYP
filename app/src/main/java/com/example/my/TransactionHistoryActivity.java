@@ -7,8 +7,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 public class TransactionHistoryActivity extends BaseActivity {
 
@@ -33,7 +37,7 @@ public class TransactionHistoryActivity extends BaseActivity {
         transactionRecyclerView = findViewById(R.id.transactionRecyclerView);
         transactionRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         transactionList = new ArrayList<>();
-        adapter = new TransactionAdapter(this, transactionList);
+        adapter = new TransactionAdapter(getGroupedTransactions(), this);
         transactionRecyclerView.setAdapter(adapter);
 
         // Load transactions
@@ -54,4 +58,43 @@ public class TransactionHistoryActivity extends BaseActivity {
         }
         adapter.notifyDataSetChanged();
     }
+
+    private List<Transaction> getGroupedTransactions() {
+        List<Transaction> transactions = new ArrayList<>();
+        Cursor cursor = dbHelper.getAllTransactions(); // Fetch all transaction items
+
+        List<TransactionItem> transactionItems = dbHelper.getTransactionItemsFromCursor(cursor); // Convert Cursor to List
+
+        Map<String, Transaction> transactionMap = new HashMap<>();
+
+        // Formatter to truncate timestamp down to minutes (ignores seconds and milliseconds)
+        SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()); // Input format from DB
+        SimpleDateFormat outputFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault());  // Output format
+
+        for (TransactionItem item : transactionItems) {
+            String originalTimestamp = item.getDate(); // Original timestamp from the database
+
+            try {
+                // Parse the original timestamp and format it to only include date and minute
+                String truncatedTimestamp = outputFormat.format(inputFormat.parse(originalTimestamp));
+
+                // Check if a transaction for this minute already exists
+                if (!transactionMap.containsKey(truncatedTimestamp)) {
+                    Transaction newTransaction = new Transaction(truncatedTimestamp);
+                    transactionMap.put(truncatedTimestamp, newTransaction);
+                    transactions.add(newTransaction);
+                }
+
+                // Add the current item to the transaction
+                Transaction transaction = transactionMap.get(truncatedTimestamp);
+                transaction.addItem(item);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return transactions;
+    }
+
 }
