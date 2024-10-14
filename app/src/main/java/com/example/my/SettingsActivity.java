@@ -1,34 +1,19 @@
 package com.example.my;
 
-import android.content.ContentValues;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.MediaStore;
-import android.provider.Settings;
 import android.widget.Toast;
-import android.Manifest;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatDelegate;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import android.content.ContentValues;
-import android.provider.MediaStore;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -93,6 +78,7 @@ public class SettingsActivity extends AppCompatActivity {
         settingItemList.add(new SettingItem(R.drawable.ic_night_mode, "Night Mode"));
         settingItemList.add(new SettingItem(R.drawable.ic_import, "Import Database"));
         settingItemList.add(new SettingItem(R.drawable.ic_export, "Export Database"));
+        settingItemList.add(new SettingItem(R.drawable.ic_new, "What's new"));
         settingItemList.add(new SettingItem(R.drawable.ic_help, "FAQ"));
         settingItemList.add(new SettingItem(R.drawable.ic_info, "About"));
 
