@@ -93,10 +93,10 @@ public class SettingsAdapter extends RecyclerView.Adapter<SettingsAdapter.Settin
                     case 2: // Import Database // Import
                         optionExport();
                         break;
-                    case 3: // FAQ
+                    case 3:
                         // Inflate the dialog layout
                         LayoutInflater inflater = LayoutInflater.from(v.getContext());
-                        View dialogView = inflater.inflate(R.layout.dialog_faq, null);
+                        View dialogView = inflater.inflate(R.layout.dialog_new, null);
 
                         // Create the dialog
                         AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
@@ -104,7 +104,27 @@ public class SettingsAdapter extends RecyclerView.Adapter<SettingsAdapter.Settin
                         AlertDialog dialog = builder.create();
 
                         // Set dialog content
-                        TextView faqTextView = dialogView.findViewById(R.id.faq_text);
+                        TextView newTextView = dialogView.findViewById(R.id.new_text);
+                        newTextView.setText("-fixed transaction history to group individual transaction items into transactions, based on the timestamp of each transaction item\n\n" +
+                                "-added up button to settings activity\n\n" +
+                                "-changed default save name format for database exports");
+
+                        // Show the dialog
+                        dialog.setCancelable(true);
+                        dialog.show();
+                        break;
+                    case 4: // FAQ
+                        // Inflate the dialog layout
+                        LayoutInflater inflater1 = LayoutInflater.from(v.getContext());
+                        View dialogView1 = inflater1.inflate(R.layout.dialog_faq, null);
+
+                        // Create the dialog
+                        AlertDialog.Builder builder1 = new AlertDialog.Builder(v.getContext());
+                        builder1.setView(dialogView1).setPositiveButton("OK", null);
+                        AlertDialog dialog1 = builder1.create();
+
+                        // Set dialog content
+                        TextView faqTextView = dialogView1.findViewById(R.id.faq_text);
                         faqTextView.setText(Html.fromHtml(
                                 "<b>Καλωσορίσατε στην Εφαρμογή Διαχείρισης ΕΤΥΠ!</b><br><br> Αυτή η εφαρμογή έχει σχεδιαστεί για να σας βοηθήσει να διαχειριστείτε αποδοτικά το ντουλάπι και τα είδη ΕΤΥΠ σας, καθιστώντας την εμπειρία των δρομολογίων σας πιο απλή και ευχάριστη. Παρακάτω παρατίθενται μερικά βασικά χαρακτηριστικά και οδηγίες για το πώς να χρησιμοποιείτε την εφαρμογή αποτελεσματικά.<br><br>" +
                                         "<b>Ξεκινώντας</b><br><br>" +
@@ -140,11 +160,10 @@ public class SettingsAdapter extends RecyclerView.Adapter<SettingsAdapter.Settin
                         ));
 
                         // Show the dialog
-                        dialog.setCancelable(true);
-                        dialog.show();
+                        dialog1.setCancelable(true);
+                        dialog1.show();
                         break;
-
-                    case 4:
+                    case 5:
                         // Inflate the dialog layout
                         LayoutInflater inflater2 = LayoutInflater.from(v.getContext());
                         View dialogView2 = inflater2.inflate(R.layout.dialog_about, null);
@@ -180,7 +199,7 @@ public class SettingsAdapter extends RecyclerView.Adapter<SettingsAdapter.Settin
                             appAuthor.setText("Author: ΔΙΚΥΒ"); // Replace with the author's name
 
                             long lastUpdateTime = packageInfo.lastUpdateTime;
-                            SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
+                            SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
                             String formattedDate = dateFormat.format(new Date(lastUpdateTime));
                             appLastUpdate.setText("Last Update: " + formattedDate);
 
@@ -217,13 +236,14 @@ public class SettingsAdapter extends RecyclerView.Adapter<SettingsAdapter.Settin
 
     public void optionExport() {
         String appLabel = context.getPackageManager().getApplicationLabel(context.getApplicationInfo()).toString();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss", Locale.getDefault());
+        SimpleDateFormat sdf = new SimpleDateFormat("(yyyy-MM-dd hh:mm:ss)", Locale.getDefault());
         Calendar calendar = Calendar.getInstance();
+        String currentTimestamp = sdf.format(calendar.getTime());
 
         Intent exportIntent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
         exportIntent.addCategory(Intent.CATEGORY_OPENABLE);
         exportIntent.setType("application/octet-stream");
-        exportIntent.putExtra(Intent.EXTRA_TITLE, appLabel + " " + sdf.format(calendar.getTime()) + ".db"); // Specify the file name
+        exportIntent.putExtra(Intent.EXTRA_TITLE, appLabel + currentTimestamp + ".db"); // Specify the file name
         exportLauncher.launch(exportIntent); // Call exportLauncher here
     }
 
