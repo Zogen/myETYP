@@ -33,11 +33,16 @@ public class SettingsAdapter extends RecyclerView.Adapter<SettingsAdapter.Settin
     private ActivityResultLauncher<Intent> importLauncher;
     private ActivityResultLauncher<Intent> exportLauncher;
 
+    PackageManager packageManager;
+    String packageName;
+
     public SettingsAdapter(List<SettingItem> settingItemList, Context context, ActivityResultLauncher<Intent> importLauncher, ActivityResultLauncher<Intent> exportLauncher) {
         this.context = context; // Initialize context here
         this.importLauncher = importLauncher; // Initialize importLauncher
         this.exportLauncher = exportLauncher; // Initialize exportLauncher
         this.settingItemList = settingItemList;
+        this.packageName = context.getPackageName();
+        this.packageManager = context.getPackageManager();
     }
 
     @NonNull
@@ -101,14 +106,25 @@ public class SettingsAdapter extends RecyclerView.Adapter<SettingsAdapter.Settin
                         // Create the dialog
                         AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
                         builder.setView(dialogView);
+
+                        try {
+                            // Retrieve application info
+                            ApplicationInfo appInfo = packageManager.getApplicationInfo(packageName, 0);
+
+                            // Retrieve version information
+                            String versionName = packageManager.getPackageInfo(packageName, 0).versionName;
+
+                            builder.setTitle("v" + versionName);
+
+                        } catch (PackageManager.NameNotFoundException e) {
+                            e.printStackTrace();
+                        }
+
                         AlertDialog dialog = builder.create();
 
                         // Set dialog content
                         TextView newTextView = dialogView.findViewById(R.id.new_text);
-                        newTextView.setText("-fixed transaction history to group individual transaction items into transactions, based on the timestamp of each transaction item\n\n" +
-                                "-added up button to settings activity\n\n" +
-                                "-changed default save name format for database exports\n\n" +
-                                "added \"ok\" button to deflate FAQ dialog");
+                        newTextView.setText("-improved search functionality");
 
                         // Show the dialog
                         dialog.setCancelable(true);
@@ -145,10 +161,12 @@ public class SettingsAdapter extends RecyclerView.Adapter<SettingsAdapter.Settin
                                         "5. <b>Ρύθμιση Ποσοτήτων:</b><br>" +
                                         "   - Μπορείτε να αυξήσετε ή να μειώσετε τις ποσότητες των αντικειμένων του ντουλαπιού σας χρησιμοποιώντας τα κουμπιά '+' και '-' δίπλα σε κάθε αντικείμενο.<br>" +
                                         "   - Αν εξαντληθείτε από ένα αντικείμενο, απλά διαγράψτε το από τη λίστα του ντουλαπιού.<br><br>" +
-                                        "6. <b>Εισαγωγή και Εξαγωγή Βάσης Δεδομένων:</b><br>" +
+                                        "6. <b>ΝΕΟ: Αναζήτηση</b><br>" +
+                                        "   - Μπορείτε πλεόν να κάνετε αναζήτηση σε κάθε μία από τις αναφερόμενες λίστες!<br><br>" +
+                                        "7. <b>Εισαγωγή και Εξαγωγή Βάσης Δεδομένων:</b><br>" +
                                         "   - Μπορείτε να εξάγετε τη βάση δεδομένων σας για να δημιουργήσετε αντίγραφα ασφαλείας. Επιλέξτε την επιλογή 'Εξαγωγή Βάσης Δεδομένων' από το μενού ρυθμίσεων για να ξεκινήσετε τη διαδικασία.<br>" +
                                         "   - Για να εισάγετε μια βάση δεδομένων, επιλέξτε 'Εισαγωγή Βάσης Δεδομένων' από το μενού και επιλέξτε το αρχείο που θέλετε να εισάγετε.<br><br>" +
-                                        "7. <b>Ιστορικό Συναλλαγών:</b><br>" +
+                                        "8. <b>Ιστορικό Συναλλαγών:</b><br>" +
                                         "   - Η εφαρμογή περιλαμβάνει μια δυνατότητα ιστορικού συναλλαγών, επιτρέποντάς σας να παρακολουθείτε τα αντικείμενα που έχετε προσθέσει ή αφαιρέσει από το ντουλάπι σας.<br>" +
                                         "   - Μπορείτε να δείτε το ιστορικό συναλλαγών μεταβαίνοντας στην ενότητα 'Ιστορικό Συναλλαγών'.<br><br>" +
                                         "<b>Πρόσθετα Χαρακτηριστικά</b><br><br>" +
@@ -184,8 +202,8 @@ public class SettingsAdapter extends RecyclerView.Adapter<SettingsAdapter.Settin
 
                         // Get application context and package manager
                         Context context = v.getContext();
-                        PackageManager packageManager = context.getPackageManager();
-                        String packageName = context.getPackageName();
+//                        PackageManager packageManager = context.getPackageManager();
+//                        String packageName = context.getPackageName();
 
                         try {
                             // Retrieve application info
