@@ -5,10 +5,13 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.text.InputType;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import androidx.appcompat.widget.SearchView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBar;
@@ -58,6 +61,64 @@ public class PantryActivity extends BaseActivity {
                 showAddPantryItemDialog();
             }
         });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_pantry, menu);
+
+        MenuItem searchItem = menu.findItem(R.id.action_search);
+        SearchView searchView = (SearchView) searchItem.getActionView();
+
+        // Make the SearchView expand to the full width
+        searchView.setMaxWidth(Integer.MAX_VALUE);
+
+        // Set up listener to handle search text changes
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                performSearch(query); // Trigger search when "submit" is pressed
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                performSearch(newText); // Filter list every time text changes
+                return true;
+            }
+        });
+
+        // Reset to full list when SearchView is closed
+        searchView.setOnCloseListener(() -> {
+            resetToFullList();
+            return false;
+        });
+
+        return true;
+    }
+
+
+    private void performSearch(String query) {
+        List<PantryItem> filteredList = new ArrayList<>();
+
+        if (query.isEmpty()) {
+            // If query is empty, reload the full list
+            filteredList.addAll(pantryList);
+        } else {
+            // Otherwise, filter based on the query
+            for (PantryItem item : pantryList) {
+                if (item.getName().toLowerCase().contains(query.toLowerCase())) {
+                    filteredList.add(item);
+                }
+            }
+        }
+
+        // Update the adapter with the filtered list
+        adapter.updateList(filteredList);
+    }
+
+    private void resetToFullList() {
+        adapter.updateList(pantryList); // Load the full list back into the adapter
     }
 
     private void loadPantryItems() {

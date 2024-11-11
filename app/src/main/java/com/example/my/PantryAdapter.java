@@ -169,4 +169,10 @@ public class PantryAdapter extends RecyclerView.Adapter<PantryAdapter.PantryView
         }
     }
 
+    public void updateList(List<PantryItem> filteredList) {
+        pantryList.clear();
+        pantryList.addAll(filteredList);
+        notifyDataSetChanged();
+    }
+
 }
