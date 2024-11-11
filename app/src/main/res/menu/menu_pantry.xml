@@ -4,7 +4,14 @@
     <item
         android:id="@+id/action_search"
         android:title="Search"
-        android:icon="@android:drawable/ic_menu_search"
+        android:icon="@drawable/baseline_search_24"
         app:actionViewClass="androidx.appcompat.widget.SearchView"
-        app:showAsAction="collapseActionView|ifRoom" />
+        app:showAsAction="ifRoom|collapseActionView" />
+
+    <item
+        android:id="@+id/action_settings"
+        android:title="Ρυθμίσεις"
+        android:icon="@drawable/baseline_settings_24"
+        app:showAsAction="never" />
+
 </menu>
