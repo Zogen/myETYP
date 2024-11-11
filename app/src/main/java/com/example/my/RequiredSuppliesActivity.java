@@ -4,6 +4,8 @@ import android.content.DialogInterface;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.text.InputType;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -13,13 +15,14 @@ import android.widget.Toast;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class RequiredSuppliesActivity extends BaseActivity {
+public class RequiredSuppliesActivity extends BaseActivity implements SearchView.OnQueryTextListener{
 
     private DatabaseHelper dbHelper;
     private RecyclerView suppliesRecyclerView;
@@ -66,6 +69,53 @@ public class RequiredSuppliesActivity extends BaseActivity {
 
         // Load existing supplies from the database
         loadRequiredSupplies();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_pantry, menu);
+
+        MenuItem searchItem = menu.findItem(R.id.action_search);
+        SearchView searchView = (SearchView) searchItem.getActionView();
+
+        // Make the SearchView expand to the full width
+        searchView.setMaxWidth(Integer.MAX_VALUE);
+
+        // Set up listener to handle search text changes
+        searchView.setOnQueryTextListener(this);
+
+        // Listen for search view close to reload entire list
+        searchView.setOnCloseListener(() -> {
+            loadRequiredSupplies();  // Reload entire list when search is closed
+            return false;
+        });
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem searchItem){
+        return super.onOptionsItemSelected(searchItem);
+    }
+
+    @Override
+    public boolean onQueryTextSubmit(String query){
+        return false;
+    }
+
+    @Override
+    public boolean onQueryTextChange(String newText){
+        newText = newText.toLowerCase();
+        ArrayList<RequiredSupplyItem> newList = new ArrayList<>();
+        for (RequiredSupplyItem item : suppliesList)
+        {
+            String name = item.getName().toLowerCase();
+            if (name.contains(newText)){
+                newList.add(item);
+            }
+        }
+        adapter.setFilter(newList);
+        return  true;
     }
 
     private void loadRequiredSupplies() {

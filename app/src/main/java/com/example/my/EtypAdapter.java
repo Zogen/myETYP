@@ -19,6 +19,7 @@ import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class EtypAdapter extends RecyclerView.Adapter<EtypAdapter.GroceryViewHolder> {
@@ -163,6 +164,12 @@ public class EtypAdapter extends RecyclerView.Adapter<EtypAdapter.GroceryViewHol
     @Override
     public int getItemCount() {
         return groceryList.size();
+    }
+
+    public void setFilter(ArrayList<EtypItem> newList){
+        groceryList = new ArrayList<>();
+        groceryList.addAll(newList);
+        notifyDataSetChanged();
     }
 
     public static class GroceryViewHolder extends RecyclerView.ViewHolder {

@@ -18,6 +18,7 @@ import android.content.Intent;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -27,7 +28,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-public class EtypListActivity extends BaseActivity {
+public class EtypListActivity extends BaseActivity implements SearchView.OnQueryTextListener{
 
     private DatabaseHelper dbHelper;
     private RecyclerView groceryRecyclerView;
@@ -76,6 +77,46 @@ public class EtypListActivity extends BaseActivity {
         });
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_etyp_list, menu);
+
+        MenuItem searchItem = menu.findItem(R.id.action_search);
+        SearchView searchView = (SearchView) searchItem.getActionView();
+
+        // Make the SearchView expand to the full width
+        searchView.setMaxWidth(Integer.MAX_VALUE);
+
+        // Set up listener to handle search text changes
+        searchView.setOnQueryTextListener(this);
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem searchItem){
+        return super.onOptionsItemSelected(searchItem);
+    }
+
+    @Override
+    public boolean onQueryTextSubmit(String query){
+        return false;
+    }
+
+    @Override
+    public boolean onQueryTextChange(String newText){
+        newText = newText.toLowerCase();
+        ArrayList<EtypItem> newList = new ArrayList<>();
+        for (EtypItem item : groceryList)
+        {
+            String name = item.getName().toLowerCase();
+            if (name.contains(newText)){
+                newList.add(item);
+            }
+        }
+        adapter.setFilter(newList);
+        return  true;
+    }
 
     private void loadGroceryItems() {
         Cursor cursor = dbHelper.getAllGroceryItems();

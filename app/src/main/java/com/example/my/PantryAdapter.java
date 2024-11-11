@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -154,6 +155,11 @@ public class PantryAdapter extends RecyclerView.Adapter<PantryAdapter.PantryView
         return pantryList.size();
     }
 
+    public void setFilter(ArrayList<PantryItem> newList){
+        pantryList = new ArrayList<>();
+        pantryList.addAll(newList);
+        notifyDataSetChanged();
+    }
 
     public static class PantryViewHolder extends RecyclerView.ViewHolder {
         TextView pantryItemName, pantryItemQuantity;

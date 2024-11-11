@@ -14,6 +14,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class RequiredSuppliesAdapter extends RecyclerView.Adapter<RequiredSuppliesAdapter.ViewHolder> {
@@ -100,6 +101,12 @@ public class RequiredSuppliesAdapter extends RecyclerView.Adapter<RequiredSuppli
     @Override
     public int getItemCount() {
         return suppliesList.size();
+    }
+
+    public void setFilter(ArrayList<RequiredSupplyItem> newList){
+        suppliesList = new ArrayList<>();
+        suppliesList.addAll(newList);
+        notifyDataSetChanged();
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {

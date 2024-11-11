@@ -1,0 +1,23 @@
+<!-- res/menu/menu_pantry.xml -->
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_search"
+        android:title="Search"
+        android:icon="@drawable/baseline_search_24"
+        app:actionViewClass="androidx.appcompat.widget.SearchView"
+        app:showAsAction="ifRoom|collapseActionView" />
+
+    <item
+        android:id="@+id/action_transaction_history"
+        android:title="Ιστορικό ΕΤΥΠ"
+        android:icon="@android:drawable/ic_menu_agenda"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_settings"
+        android:title="Ρυθμίσεις"
+        android:icon="@drawable/baseline_settings_24"
+        app:showAsAction="never" />
+
+</menu>

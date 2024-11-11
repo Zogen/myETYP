@@ -23,7 +23,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PantryActivity extends BaseActivity {
+public class PantryActivity extends BaseActivity implements SearchView.OnQueryTextListener{
 
     private DatabaseHelper dbHelper;
     private RecyclerView pantryRecyclerView;
@@ -74,51 +74,40 @@ public class PantryActivity extends BaseActivity {
         searchView.setMaxWidth(Integer.MAX_VALUE);
 
         // Set up listener to handle search text changes
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                performSearch(query); // Trigger search when "submit" is pressed
-                return true;
-            }
+        searchView.setOnQueryTextListener(this);
 
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                performSearch(newText); // Filter list every time text changes
-                return true;
-            }
-        });
-
-        // Reset to full list when SearchView is closed
+        // Listen for search view close to reload entire list
         searchView.setOnCloseListener(() -> {
-            resetToFullList();
+            loadPantryItems();  // Reload entire list when search is closed
             return false;
         });
 
         return true;
     }
 
-
-    private void performSearch(String query) {
-        List<PantryItem> filteredList = new ArrayList<>();
-
-        if (query.isEmpty()) {
-            // If query is empty, reload the full list
-            filteredList.addAll(pantryList);
-        } else {
-            // Otherwise, filter based on the query
-            for (PantryItem item : pantryList) {
-                if (item.getName().toLowerCase().contains(query.toLowerCase())) {
-                    filteredList.add(item);
-                }
-            }
-        }
-
-        // Update the adapter with the filtered list
-        adapter.updateList(filteredList);
+    @Override
+    public boolean onOptionsItemSelected(MenuItem searchItem){
+        return super.onOptionsItemSelected(searchItem);
     }
 
-    private void resetToFullList() {
-        adapter.updateList(pantryList); // Load the full list back into the adapter
+    @Override
+    public boolean onQueryTextSubmit(String query){
+        return false;
+    }
+
+    @Override
+    public boolean onQueryTextChange(String newText){
+        newText = newText.toLowerCase();
+        ArrayList<PantryItem> newList = new ArrayList<>();
+        for (PantryItem item : pantryList)
+        {
+            String name = item.getName().toLowerCase();
+            if (name.contains(newText)){
+                newList.add(item);
+            }
+        }
+        adapter.setFilter(newList);
+        return  true;
     }
 
     private void loadPantryItems() {
