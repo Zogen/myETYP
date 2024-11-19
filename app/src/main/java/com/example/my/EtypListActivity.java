@@ -1,6 +1,7 @@
 package com.example.my;
 
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.text.InputType;
@@ -24,6 +25,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -34,6 +36,7 @@ public class EtypListActivity extends BaseActivity implements SearchView.OnQuery
     private RecyclerView groceryRecyclerView;
     private EtypAdapter adapter;
     private List<EtypItem> groceryList;
+    private static final String SORT_PREFERENCE_KEY = "SortPreference_Grocery";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +60,7 @@ public class EtypListActivity extends BaseActivity implements SearchView.OnQuery
 
         // method to load items registered in Pantry db table, implemented below
         loadGroceryItems();
+        loadSortPreference();
 
         // button to add item to grocery list
         Button addGroceryItemButton = findViewById(R.id.addGroceryItemButton);
@@ -94,8 +98,83 @@ public class EtypListActivity extends BaseActivity implements SearchView.OnQuery
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem searchItem){
-        return super.onOptionsItemSelected(searchItem);
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_sort) {
+            showSortOptionsDialog(); // Show the sorting options dialog
+            return true; // Indicate the event has been handled
+        }
+        return super.onOptionsItemSelected(item); // Delegate unhandled events to the superclass
+    }
+
+    private void showSortOptionsDialog() {
+        String[] sortOptions = {"Ημερομηνία εισαγωγής", "Ημερομηνία (αντιστρ.)", "Αλφαβητικά", "Αλφαβητικά (αντιστρ.)"};
+
+        // Create a dialog with radio buttons
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Ταξινόμηση με βάση:");
+
+        builder.setSingleChoiceItems(sortOptions, getCurrentSortOptionIndex(), (dialog, which) -> {
+            // Handle selection
+            switch (which) {
+                case 0:
+                    sortListByUniqueId(false);
+                    setCurrentSortOption(0);
+                    break;
+                case 1:
+                    sortListByUniqueId(true);
+                    setCurrentSortOption(1);
+                    break;
+                case 2:
+                    sortListAlphabetically(true);
+                    setCurrentSortOption(2);
+                    break;
+                case 3:
+                    sortListAlphabetically(false);
+                    setCurrentSortOption(3);
+                    break;
+            }
+
+            setCurrentSortOption(which); // Save the selected option
+            dialog.dismiss(); // Close the dialog
+        });
+
+        builder.setNegativeButton("Cancel", null);
+        builder.show();
+    }
+
+    private void sortListByUniqueId(boolean reverse) {
+        // Assume the items have a method `getId()` to retrieve the unique ID
+        if (reverse) {
+            Collections.sort(groceryList, (item1, item2) -> Integer.compare(item2.getId(), item1.getId()));
+        } else {
+            Collections.sort(groceryList, (item1, item2) -> Integer.compare(item1.getId(), item2.getId()));
+        }
+        adapter.notifyDataSetChanged(); // Notify the adapter to refresh the list
+    }
+
+    private void sortListAlphabetically(boolean ascending) {
+        if (ascending) {
+            Collections.sort(groceryList, (item1, item2) -> item1.getName().compareToIgnoreCase(item2.getName()));
+        } else {
+            Collections.sort(groceryList, (item1, item2) -> item2.getName().compareToIgnoreCase(item1.getName()));
+        }
+        adapter.notifyDataSetChanged();
+    }
+
+    private int currentSortOption = 0; // Default: Auto Increment
+
+    private int getCurrentSortOptionIndex() {
+        return currentSortOption;
+    }
+
+    private void setCurrentSortOption(int index) {
+        currentSortOption = index;
+
+        // Save to SharedPreferences
+        SharedPreferences preferences = getSharedPreferences("SortPreferences", MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putInt(SORT_PREFERENCE_KEY, index);
+        editor.apply();
     }
 
     @Override
@@ -248,6 +327,26 @@ public class EtypListActivity extends BaseActivity implements SearchView.OnQuery
         }
     }
 
+    private void loadSortPreference() {
+        SharedPreferences preferences = getSharedPreferences("SortPreferences", MODE_PRIVATE);
+        currentSortOption = preferences.getInt(SORT_PREFERENCE_KEY, 0); // Default to Auto Increment
+
+        // Apply the saved sort method
+        switch (currentSortOption) {
+            case 0:
+                sortListByUniqueId(false); // Auto Increment
+                break;
+            case 1:
+                sortListByUniqueId(true); // Reverse Auto Increment
+                break;
+            case 2:
+                sortListAlphabetically(true); // A to Z
+                break;
+            case 3:
+                sortListAlphabetically(false); // Z to A
+                break;
+        }
+    }
 
 //    // Override to add menu
 //    @Override

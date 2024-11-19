@@ -124,7 +124,7 @@ public class SettingsAdapter extends RecyclerView.Adapter<SettingsAdapter.Settin
 
                         // Set dialog content
                         TextView newTextView = dialogView.findViewById(R.id.new_text);
-                        newTextView.setText("-improved search functionality");
+                        newTextView.setText("-added persistent sorting functionality to each list (alphabetical, by id)");
 
                         // Show the dialog
                         dialog.setCancelable(true);
