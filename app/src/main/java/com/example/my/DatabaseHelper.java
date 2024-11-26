@@ -318,6 +318,32 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.close();
     }
 
+    // Retrieve grocery item by name
+    public RequiredSupplyItem getSupplyItemByName(String name) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(
+                TABLE_REQUIRED_SUPPLIES,
+                null,
+                COLUMN_REQUIRED_SUPPLIES_NAME + " = ?",
+                new String[]{name},
+                null,
+                null,
+                null
+        );
+
+        if (cursor != null && cursor.moveToFirst()) {
+            int id = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_REQUIRED_SUPPLIES_ID));
+            int quantity = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_REQUIRED_SUPPLIES_QUANTITY));
+            cursor.close();
+            return new RequiredSupplyItem(id, name, quantity);
+        }
+
+        if (cursor != null) {
+            cursor.close();
+        }
+        return null; // Item not found
+    }
+
     // Get all required supplies
     public Cursor getAllRequiredSupplies() {
         SQLiteDatabase db = this.getReadableDatabase();

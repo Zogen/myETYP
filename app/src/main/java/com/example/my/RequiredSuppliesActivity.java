@@ -5,9 +5,12 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.text.InputType;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -31,11 +34,14 @@ public class RequiredSuppliesActivity extends BaseActivity implements SearchView
     private RequiredSuppliesAdapter adapter;
     private List<RequiredSupplyItem> suppliesList;
     private static final String SORT_PREFERENCE_KEY = "SortPreference_Supplies";
+    private ArrayAdapter<String> autoCompleteAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_required_supplies);
+
+        autoCompleteAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, new ArrayList<>());
 
         // Display action bar with title
         ActionBar actionBar = getSupportActionBar();
@@ -214,43 +220,70 @@ public class RequiredSuppliesActivity extends BaseActivity implements SearchView
     }
 
     private void showAddSupplyDialog() {
+        // Inflate the custom dialog layout
+        LayoutInflater inflater = LayoutInflater.from(this);
+        View dialogView = inflater.inflate(R.layout.dialog_add_item, null); // Use your XML layout
+
+        // Get references to the input fields
+        AutoCompleteTextView itemNameInput = dialogView.findViewById(R.id.item_name_input);
+        EditText itemQuantityInput = dialogView.findViewById(R.id.item_quantity_input);
+
+        // Prepare suggestions based on the current grocery list
+        List<String> itemNames = new ArrayList<>();
+        for (RequiredSupplyItem item : suppliesList) {
+            itemNames.add(item.getName());
+        }
+
+        // Set up the AutoCompleteTextView with suggestions
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, itemNames);
+        itemNameInput.setAdapter(adapter);
+
+        // Build the AlertDialog
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Προσθήκη επιθυμητού αποθέματος");
+        builder.setTitle("Προσθήκη αποθέματος ασφαλείας");
+        builder.setView(dialogView);
 
-        LinearLayout layout = new LinearLayout(this);
-        layout.setOrientation(LinearLayout.VERTICAL);
+        builder.setPositiveButton("Προσθήκη", (dialog, which) -> {
+            String itemName = itemNameInput.getText().toString().trim();
+            String itemQuantityStr = itemQuantityInput.getText().toString().trim();
 
-        final EditText supplyNameInput = new EditText(this);
-        supplyNameInput.setHint("Ονομα");
-        layout.addView(supplyNameInput);
-
-        final EditText supplyQuantityInput = new EditText(this);
-        supplyQuantityInput.setHint("Ποσότητα");
-        supplyQuantityInput.setInputType(InputType.TYPE_CLASS_NUMBER);
-        layout.addView(supplyQuantityInput);
-
-        builder.setView(layout);
-
-        builder.setPositiveButton("Προσθήκη", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                String supplyName = supplyNameInput.getText().toString();
-                String supplyQuantityStr = supplyQuantityInput.getText().toString();
-
-                if (!supplyName.isEmpty() && !supplyQuantityStr.isEmpty()) {
-                    int supplyQuantity = Integer.parseInt(supplyQuantityStr);
-                    dbHelper.insertRequiredSupply(supplyName, supplyQuantity);
-                    loadRequiredSupplies(); // Refresh the list
-                    Toast.makeText(RequiredSuppliesActivity.this, "Επιτυχής προσθήκη", Toast.LENGTH_SHORT).show();
+            // Check that both fields have been filled and that quantity is > 0
+            if (!itemName.isEmpty() && !itemQuantityStr.isEmpty()) {
+                int itemQuantity = Integer.parseInt(itemQuantityStr);
+                RequiredSupplyItem existingSupplyItem = dbHelper.getSupplyItemByName(itemName);
+                if (existingSupplyItem != null) {
+                    // Item exists, update its quantity
+                    int newQuantity = existingSupplyItem.getDesiredQuantity() + itemQuantity;
+                    existingSupplyItem.setQuantity(newQuantity);
+                    dbHelper.updateSupplyItemQuantity(existingSupplyItem.getId(), newQuantity);
                 } else {
-                    Toast.makeText(RequiredSuppliesActivity.this, "Είσαι Ι6", Toast.LENGTH_SHORT).show();
+                    // Item does not exist, insert it as a new item
+                    dbHelper.insertRequiredSupply(itemName, itemQuantity);
                 }
+                // Groceries updated successfully
+                Toast.makeText(RequiredSuppliesActivity.this, "Επιτυχής προσθήκη/ενημέρωση", Toast.LENGTH_SHORT).show();
+                updateSuggestions();
+                loadRequiredSupplies();
+            } else {
+                // Groceries not updated, notify user to correct their input
+                Toast.makeText(RequiredSuppliesActivity.this, "Ρε ΑΜΕΑ, βάλε έγκυρες τιμές", Toast.LENGTH_SHORT).show();
             }
         });
 
         builder.setNegativeButton("Ακυρο", (dialog, which) -> dialog.cancel());
 
         builder.show();
+    }
+
+    private void updateSuggestions() {
+        List<String> itemNames = new ArrayList<>();
+        for (RequiredSupplyItem item : suppliesList) {
+            itemNames.add(item.getName());
+        }
+
+        autoCompleteAdapter.clear();
+        autoCompleteAdapter.addAll(itemNames);
+        autoCompleteAdapter.notifyDataSetChanged();
     }
 
     private void checkInventoryAndUpdateEtypList() {

@@ -1,22 +1,22 @@
 package com.example.my;
 
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.text.InputType;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
+
 import androidx.appcompat.widget.SearchView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -31,11 +31,14 @@ public class PantryActivity extends BaseActivity implements SearchView.OnQueryTe
     private PantryAdapter adapter;
     private List<PantryItem> pantryList;
     private static final String SORT_PREFERENCE_KEY = "SortPreference_Pantry";
+    private ArrayAdapter<String> autoCompleteAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pantry);
+
+        autoCompleteAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, new ArrayList<>());
 
         // display action bar with up button
         ActionBar actionBar = getSupportActionBar();
@@ -205,70 +208,70 @@ public class PantryActivity extends BaseActivity implements SearchView.OnQueryTe
 
     //dialog for adding new item to pantry set. initiated by button press
     private void showAddPantryItemDialog() {
+        // Inflate the custom dialog layout
+        LayoutInflater inflater = LayoutInflater.from(this);
+        View dialogView = inflater.inflate(R.layout.dialog_add_item, null); // Use your XML layout
+
+        // Get references to the input fields
+        AutoCompleteTextView itemNameInput = dialogView.findViewById(R.id.item_name_input);
+        EditText itemQuantityInput = dialogView.findViewById(R.id.item_quantity_input);
+
+        // Prepare suggestions based on the current grocery list
+        List<String> itemNames = new ArrayList<>();
+        for (PantryItem item : pantryList) {
+            itemNames.add(item.getName());
+        }
+
+        // Set up the AutoCompleteTextView with suggestions
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, itemNames);
+        itemNameInput.setAdapter(adapter);
+
+        // Build the AlertDialog
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Προσθήκη αντικειμένου στο ντουλάπι");
+        builder.setTitle("Προσθήκη στο ντουλάπι ΔΙΚΥΒ");
+        builder.setView(dialogView);
 
-        // Set up the input fields
-        LinearLayout layout = new LinearLayout(this);
-        layout.setOrientation(LinearLayout.VERTICAL);
+        builder.setPositiveButton("Προσθήκη", (dialog, which) -> {
+            String itemName = itemNameInput.getText().toString().trim();
+            String itemQuantityStr = itemQuantityInput.getText().toString().trim();
 
-        //item label
-        final EditText itemNameInput = new EditText(this);
-        itemNameInput.setHint("Ονομα");
-        layout.addView(itemNameInput);
-
-        //item quantity
-        final EditText itemQuantityInput = new EditText(this);
-        itemQuantityInput.setHint("Ποσότητα");
-        itemQuantityInput.setInputType(InputType.TYPE_CLASS_NUMBER);
-        layout.addView(itemQuantityInput);
-
-        builder.setView(layout);
-
-        // Set up the buttons
-        builder.setPositiveButton("Προσθήκη", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                String itemName = itemNameInput.getText().toString();
-                String itemQuantityStr = itemQuantityInput.getText().toString();
-
-                // check that both fields have been filled, and that quantity is > 0
-                if (!itemName.isEmpty() && !itemQuantityStr.isEmpty() && Integer.parseInt(itemQuantityStr) > 0) {
-                    int itemQuantity = Integer.parseInt(itemQuantityStr);
-                    PantryItem existingPantryItem = dbHelper.getPantryItemByName(itemName);
-                    if (existingPantryItem != null) {
-                        // Item exists, update its quantity
-                        int newQuantity = existingPantryItem.getQuantity() + itemQuantity;
-                        existingPantryItem.setQuantity(newQuantity);
-                        dbHelper.updatePantryItemQuantity(existingPantryItem.getId(), newQuantity);
-                    } else {
-                        // Item does not exist, insert it as a new item
-                        dbHelper.insertPantryItem(itemName, itemQuantity);
-
-                        // Mark that the pantry has been updated, this results in new API call in recipes activity
-//                        setPantryUpdatedFlag();
-                    }
-
-                    // Update successful, notify user
-                    Toast.makeText(PantryActivity.this, "Επιτυχής προσθήκη/ενημέρωση", Toast.LENGTH_SHORT).show();
-                    loadPantryItems();
+            // Check that both fields have been filled and that quantity is > 0
+            if (!itemName.isEmpty() && !itemQuantityStr.isEmpty()) {
+                int itemQuantity = Integer.parseInt(itemQuantityStr);
+                PantryItem existingPantryItem = dbHelper.getPantryItemByName(itemName);
+                if (existingPantryItem != null) {
+                    // Item exists, update its quantity
+                    int newQuantity = existingPantryItem.getQuantity() + itemQuantity;
+                    existingPantryItem.setQuantity(newQuantity);
+                    dbHelper.updatePantryItemQuantity(existingPantryItem.getId(), newQuantity);
                 } else {
-                    // Error, notify user to correct their input
-                    Toast.makeText(PantryActivity.this, "Ρε ΑΜΕΑ, βάλε έγκυρες τιμές", Toast.LENGTH_SHORT).show();
+                    // Item does not exist, insert it as a new item
+                    dbHelper.insertPantryItem(itemName, itemQuantity);
                 }
-
+                // Groceries updated successfully
+                Toast.makeText(PantryActivity.this, "Επιτυχής προσθήκη/ενημέρωση", Toast.LENGTH_SHORT).show();
+                updateSuggestions();
+                loadPantryItems();
+            } else {
+                // Groceries not updated, notify user to correct their input
+                Toast.makeText(PantryActivity.this, "Ρε ΑΜΕΑ, βάλε έγκυρες τιμές", Toast.LENGTH_SHORT).show();
             }
         });
 
-        // cancel button
-        builder.setNegativeButton("Λόχος Ακυρο", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
+        builder.setNegativeButton("Λόχος Ακυρο", (dialog, which) -> dialog.cancel());
 
         builder.show();
+    }
+
+    private void updateSuggestions() {
+        List<String> itemNames = new ArrayList<>();
+        for (PantryItem item : pantryList) {
+            itemNames.add(item.getName());
+        }
+
+        autoCompleteAdapter.clear();
+        autoCompleteAdapter.addAll(itemNames);
+        autoCompleteAdapter.notifyDataSetChanged();
     }
 
     private void loadSortPreference() {

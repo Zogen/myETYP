@@ -124,7 +124,8 @@ public class SettingsAdapter extends RecyclerView.Adapter<SettingsAdapter.Settin
 
                         // Set dialog content
                         TextView newTextView = dialogView.findViewById(R.id.new_text);
-                        newTextView.setText("-added persistent sorting functionality to each list (alphabetical, by id)");
+                        newTextView.setText(Html.fromHtml("-added persistent sorting functionality to each list (alphabetical, by id)<br><br>" +
+                                            "-added auto-complete suggestion when inserting items in lists, based on items that are already present"));
 
                         // Show the dialog
                         dialog.setCancelable(true);
@@ -177,7 +178,8 @@ public class SettingsAdapter extends RecyclerView.Adapter<SettingsAdapter.Settin
                                         "- <b>Ανατροφοδότηση:</b> Εκτιμούμε την ανατροφοδότηση σας! Εάν αντιμετωπίσετε οποιοδήποτε πρόβλημα ή έχετε προτάσεις για βελτιώσεις, παρακαλούμε επικοινωνήστε μαζί μας μέσω της εφαρμογής.<br><br>" +
                                         "<b>Bonus Tip!</b><br><br>" +
                                         "- <b>Χώσε το νέο:</b> Γιατί να πας εσύ δρομολόγιο ΕΤΥΠ, ενώ πάντα θα υπάρχει ένας νέος να το κάνει;    :D<br><br><br>" +
-                                        "Ελπίζουμε να απολαύσετε τη χρήση της Εφαρμογής Διαχείρισης ΕΤΥΠ! Καλά δρομολόγια!"
+                                        "Ελπίζουμε να απολαύσετε τη χρήση της Εφαρμογής Διαχείρισης ΕΤΥΠ! Καλά δρομολόγια!" +
+                                        "<br><br><br>Υ.Γ: <b>ΠΗΞΕ!</b>"
                         ));
 
                         // Show the dialog
