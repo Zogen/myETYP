@@ -206,7 +206,6 @@ public class PantryActivity extends BaseActivity implements SearchView.OnQueryTe
         adapter.notifyDataSetChanged();
     }
 
-    //dialog for adding new item to pantry set. initiated by button press
     private void showAddPantryItemDialog() {
         // Inflate the custom dialog layout
         LayoutInflater inflater = LayoutInflater.from(this);
@@ -216,7 +215,7 @@ public class PantryActivity extends BaseActivity implements SearchView.OnQueryTe
         AutoCompleteTextView itemNameInput = dialogView.findViewById(R.id.item_name_input);
         EditText itemQuantityInput = dialogView.findViewById(R.id.item_quantity_input);
 
-        // Prepare suggestions based on the current grocery list
+        // Prepare suggestions based on the current etyp list
         List<String> itemNames = new ArrayList<>();
         for (PantryItem item : pantryList) {
             itemNames.add(item.getName());
@@ -238,27 +237,48 @@ public class PantryActivity extends BaseActivity implements SearchView.OnQueryTe
             // Check that both fields have been filled and that quantity is > 0
             if (!itemName.isEmpty() && !itemQuantityStr.isEmpty()) {
                 int itemQuantity = Integer.parseInt(itemQuantityStr);
-                PantryItem existingPantryItem = dbHelper.getPantryItemByName(itemName);
-                if (existingPantryItem != null) {
-                    // Item exists, update its quantity
-                    int newQuantity = existingPantryItem.getQuantity() + itemQuantity;
-                    existingPantryItem.setQuantity(newQuantity);
-                    dbHelper.updatePantryItemQuantity(existingPantryItem.getId(), newQuantity);
+
+                // Find similar items
+                PantryItem similarItem = findSimilarItem(pantryList, itemName);
+
+                if (similarItem != null) {
+                    // Prompt user to confirm if they want to update the similar item
+                    new AlertDialog.Builder(this)
+                            .setTitle("Βρέθηκε παρόμοιο στοιχείο")
+                            .setMessage("Ποιό απ' τα δύο να προστεθεί στη λίστα;")
+                            .setPositiveButton(similarItem.getName(), (innerDialog, innerWhich) -> {
+                                // Update the existing item
+                                int newQuantity = similarItem.getQuantity() + itemQuantity;
+                                dbHelper.updatePantryItemQuantity(similarItem.getId(), newQuantity);
+                                Toast.makeText(this, "Η ποσότητα ενημερώθηκε.", Toast.LENGTH_SHORT).show();
+                                updateSuggestions();
+                                loadPantryItems();
+                                loadSortPreference();
+                            })
+                            .setNegativeButton(itemName, (innerDialog, innerWhich) -> {
+                                // Add a new item
+                                dbHelper.insertPantryItem(itemName, itemQuantity);
+                                Toast.makeText(this, "Προστέθηκε νέο στοιχείο.", Toast.LENGTH_SHORT).show();
+                                updateSuggestions();
+                                loadPantryItems();
+                                loadSortPreference();
+                            })
+                            .show();
                 } else {
-                    // Item does not exist, insert it as a new item
+                    // Add a new item if no similar item is found
                     dbHelper.insertPantryItem(itemName, itemQuantity);
+                    Toast.makeText(this, "Προστέθηκε νέο στοιχείο.", Toast.LENGTH_SHORT).show();
+                    updateSuggestions();
+                    loadPantryItems();
+                    loadSortPreference();
                 }
-                // Groceries updated successfully
-                Toast.makeText(PantryActivity.this, "Επιτυχής προσθήκη/ενημέρωση", Toast.LENGTH_SHORT).show();
-                updateSuggestions();
-                loadPantryItems();
             } else {
                 // Groceries not updated, notify user to correct their input
                 Toast.makeText(PantryActivity.this, "Ρε ΑΜΕΑ, βάλε έγκυρες τιμές", Toast.LENGTH_SHORT).show();
             }
         });
 
-        builder.setNegativeButton("Λόχος Ακυρο", (dialog, which) -> dialog.cancel());
+        builder.setNegativeButton("Ακυροοο", (dialog, which) -> dialog.cancel());
 
         builder.show();
     }
@@ -306,4 +326,43 @@ public class PantryActivity extends BaseActivity implements SearchView.OnQueryTe
 //        setPantryUpdatedFlag();
 //    }
 
+    // Find similar items based on Levenshtein distance
+    private PantryItem findSimilarItem(List<PantryItem> existingItems, String newItemName) {
+        final int SIMILARITY_THRESHOLD = 3; // Adjust this value as needed
+        PantryItem closestMatch = null;
+        int closestDistance = Integer.MAX_VALUE;
+
+        for (PantryItem item : existingItems) {
+            int distance = calculateLevenshteinDistance(newItemName.toLowerCase(), item.getName().toLowerCase());
+            if (distance < SIMILARITY_THRESHOLD && distance < closestDistance) {
+                closestMatch = item;
+                closestDistance = distance;
+            }
+        }
+
+        return closestMatch;
+    }
+
+    // Levenshtein distance algorithm
+    private int calculateLevenshteinDistance(String s1, String s2) {
+        int[][] dp = new int[s1.length() + 1][s2.length() + 1];
+
+        for (int i = 0; i <= s1.length(); i++) {
+            for (int j = 0; j <= s2.length(); j++) {
+                if (i == 0) {
+                    dp[i][j] = j;
+                } else if (j == 0) {
+                    dp[i][j] = i;
+                } else {
+                    dp[i][j] = Math.min(dp[i - 1][j - 1] + (s1.charAt(i - 1) == s2.charAt(j - 1) ? 0 : 1),
+                            Math.min(dp[i - 1][j] + 1, dp[i][j - 1] + 1));
+                }
+            }
+        }
+
+        return dp[s1.length()][s2.length()];
+    }
+
 }
+
+

@@ -111,7 +111,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     // Insert a new item into the grocery list
-    public void insertGroceryItem(String name, int quantity) {
+    public void insertEtypItem(String name, int quantity) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(COLUMN_GROCERY_NAME, name);
@@ -128,7 +128,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     // Get all grocery items
-    public Cursor getAllGroceryItems() {
+    public Cursor getAllEtypItems() {
         SQLiteDatabase db = this.getReadableDatabase();
         String query = "SELECT " + COLUMN_GROCERY_ID + " AS _id, " + COLUMN_GROCERY_NAME + ", " + COLUMN_GROCERY_QUANTITY + " FROM " + TABLE_GROCERY;
         return db.rawQuery(query, null);
@@ -142,7 +142,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     // Delete a grocery item
-    public void deleteGroceryItem(int id) {
+    public void deleteEtypItem(int id) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_GROCERY, COLUMN_GROCERY_ID + "=?", new String[]{String.valueOf(id)});
         db.close();
@@ -198,7 +198,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.update(TABLE_PANTRY, values, COLUMN_PANTRY_ID + " = ?", new String[]{String.valueOf(item.getId())});
     }
 
-    public void updateGroceryItem(EtypItem item) {
+    public void updateEtypItem(EtypItem item) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(COLUMN_GROCERY_NAME, item.getName());
@@ -222,7 +222,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     // Retrieve grocery item by name
-    public EtypItem getGroceryItemByName(String name) {
+    public EtypItem getEtypItemByName(String name) {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.query(
                 TABLE_GROCERY,
@@ -248,7 +248,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     // Update quantity of existing grocery item
-    public void updateGroceryItemQuantity(int id, int newQuantity) {
+    public void updateEtypItemQuantity(int id, int newQuantity) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(COLUMN_GROCERY_QUANTITY, newQuantity);
@@ -318,6 +318,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.close();
     }
 
+    // Get all required supplies
+    public Cursor getAllRequiredSupplies() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT " + COLUMN_REQUIRED_SUPPLIES_ID + " AS _id, " +
+                COLUMN_REQUIRED_SUPPLIES_NAME + ", " +
+                COLUMN_REQUIRED_SUPPLIES_QUANTITY + " FROM " + TABLE_REQUIRED_SUPPLIES;
+        return db.rawQuery(query, null);
+    }
+
     // Retrieve grocery item by name
     public RequiredSupplyItem getSupplyItemByName(String name) {
         SQLiteDatabase db = this.getReadableDatabase();
@@ -342,15 +351,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             cursor.close();
         }
         return null; // Item not found
-    }
-
-    // Get all required supplies
-    public Cursor getAllRequiredSupplies() {
-        SQLiteDatabase db = this.getReadableDatabase();
-        String query = "SELECT " + COLUMN_REQUIRED_SUPPLIES_ID + " AS _id, " +
-                COLUMN_REQUIRED_SUPPLIES_NAME + ", " +
-                COLUMN_REQUIRED_SUPPLIES_QUANTITY + " FROM " + TABLE_REQUIRED_SUPPLIES;
-        return db.rawQuery(query, null);
     }
 
     // Get quantity of a specific supply

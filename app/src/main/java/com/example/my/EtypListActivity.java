@@ -30,17 +30,17 @@ import java.util.Locale;
 public class EtypListActivity extends BaseActivity implements SearchView.OnQueryTextListener{
 
     private DatabaseHelper dbHelper;
-    private RecyclerView groceryRecyclerView;
+    private RecyclerView etypRecyclerView;
     private EtypAdapter adapter;
-    private List<EtypItem> groceryList;
-    private static final String SORT_PREFERENCE_KEY = "SortPreference_Grocery";
+    private List<EtypItem> etypList;
+    private static final String SORT_PREFERENCE_KEY = "SortPreference_Etyp";
     private ArrayAdapter<String> autoCompleteAdapter;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_grocery_list);
+        setContentView(R.layout.activity_etyp_list);
 
         autoCompleteAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, new ArrayList<>());
 
@@ -53,31 +53,31 @@ public class EtypListActivity extends BaseActivity implements SearchView.OnQuery
 
         // initializing activity components
         dbHelper = new DatabaseHelper(this);
-        groceryRecyclerView = findViewById(R.id.groceryRecyclerView);
-        groceryRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        groceryList = new ArrayList<>();
-        adapter = new EtypAdapter(this, groceryList, dbHelper);
-        groceryRecyclerView.setAdapter(adapter);
+        etypRecyclerView = findViewById(R.id.etypRecyclerView);
+        etypRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        etypList = new ArrayList<>();
+        adapter = new EtypAdapter(this, etypList, dbHelper);
+        etypRecyclerView.setAdapter(adapter);
 
         // method to load items registered in Pantry db table, implemented below
-        loadGroceryItems();
+        loadEtypItems();
         loadSortPreference();
 
-        // button to add item to grocery list
-        Button addGroceryItemButton = findViewById(R.id.addGroceryItemButton);
-        addGroceryItemButton.setOnClickListener(new View.OnClickListener() {
+        // button to add item to etyp list
+        Button addEtypItemButton = findViewById(R.id.addEtypItemButton);
+        addEtypItemButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showAddGroceryItemDialog();
+                showAddEtypItemDialog();
             }
         });
 
-        // this button moves the contents of the grocery list to the pantry, simulating groceries purchase, implementation below
+        // this button moves the contents of the etyp list to the pantry, simulating groceries purchase, implementation below
         Button moveToPantryButton = findViewById(R.id.moveToPantryButton);
         moveToPantryButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                moveGroceryItemsToPantry();
+                moveEtypItemsToPantry();
             }
         });
     }
@@ -146,18 +146,18 @@ public class EtypListActivity extends BaseActivity implements SearchView.OnQuery
     private void sortListByUniqueId(boolean reverse) {
         // Assume the items have a method `getId()` to retrieve the unique ID
         if (reverse) {
-            Collections.sort(groceryList, (item1, item2) -> Integer.compare(item2.getId(), item1.getId()));
+            Collections.sort(etypList, (item1, item2) -> Integer.compare(item2.getId(), item1.getId()));
         } else {
-            Collections.sort(groceryList, (item1, item2) -> Integer.compare(item1.getId(), item2.getId()));
+            Collections.sort(etypList, (item1, item2) -> Integer.compare(item1.getId(), item2.getId()));
         }
         adapter.notifyDataSetChanged(); // Notify the adapter to refresh the list
     }
 
     private void sortListAlphabetically(boolean ascending) {
         if (ascending) {
-            Collections.sort(groceryList, (item1, item2) -> item1.getName().compareToIgnoreCase(item2.getName()));
+            Collections.sort(etypList, (item1, item2) -> item1.getName().compareToIgnoreCase(item2.getName()));
         } else {
-            Collections.sort(groceryList, (item1, item2) -> item2.getName().compareToIgnoreCase(item1.getName()));
+            Collections.sort(etypList, (item1, item2) -> item2.getName().compareToIgnoreCase(item1.getName()));
         }
         adapter.notifyDataSetChanged();
     }
@@ -187,7 +187,7 @@ public class EtypListActivity extends BaseActivity implements SearchView.OnQuery
     public boolean onQueryTextChange(String newText){
         newText = newText.toLowerCase();
         ArrayList<EtypItem> newList = new ArrayList<>();
-        for (EtypItem item : groceryList)
+        for (EtypItem item : etypList)
         {
             String name = item.getName().toLowerCase();
             if (name.contains(newText)){
@@ -198,22 +198,22 @@ public class EtypListActivity extends BaseActivity implements SearchView.OnQuery
         return  true;
     }
 
-    private void loadGroceryItems() {
-        Cursor cursor = dbHelper.getAllGroceryItems();
-        groceryList.clear();
+    private void loadEtypItems() {
+        Cursor cursor = dbHelper.getAllEtypItems();
+        etypList.clear();
         if (cursor != null && cursor.moveToFirst()) {
             do {
                 int id = cursor.getInt(cursor.getColumnIndexOrThrow("_id"));
                 String name = cursor.getString(cursor.getColumnIndexOrThrow("name"));
                 int quantity = cursor.getInt(cursor.getColumnIndexOrThrow("quantity"));
-                groceryList.add(new EtypItem(id, name, quantity));
+                etypList.add(new EtypItem(id, name, quantity));
             } while (cursor.moveToNext());
             cursor.close();
         }
         adapter.notifyDataSetChanged();
     }
 
-    private void showAddGroceryItemDialog() {
+    private void showAddEtypItemDialog() {
         // Inflate the custom dialog layout
         LayoutInflater inflater = LayoutInflater.from(this);
         View dialogView = inflater.inflate(R.layout.dialog_add_item, null); // Use your XML layout
@@ -222,9 +222,9 @@ public class EtypListActivity extends BaseActivity implements SearchView.OnQuery
         AutoCompleteTextView itemNameInput = dialogView.findViewById(R.id.item_name_input);
         EditText itemQuantityInput = dialogView.findViewById(R.id.item_quantity_input);
 
-        // Prepare suggestions based on the current grocery list
+        // Prepare suggestions based on the current etyp list
         List<String> itemNames = new ArrayList<>();
-        for (EtypItem item : groceryList) {
+        for (EtypItem item : etypList) {
             itemNames.add(item.getName());
         }
 
@@ -244,20 +244,41 @@ public class EtypListActivity extends BaseActivity implements SearchView.OnQuery
             // Check that both fields have been filled and that quantity is > 0
             if (!itemName.isEmpty() && !itemQuantityStr.isEmpty()) {
                 int itemQuantity = Integer.parseInt(itemQuantityStr);
-                EtypItem existingEtypItem = dbHelper.getGroceryItemByName(itemName);
-                if (existingEtypItem != null) {
-                    // Item exists, update its quantity
-                    int newQuantity = existingEtypItem.getQuantity() + itemQuantity;
-                    existingEtypItem.setQuantity(newQuantity);
-                    dbHelper.updateGroceryItemQuantity(existingEtypItem.getId(), newQuantity);
+
+                // Find similar items
+                EtypItem similarItem = findSimilarItem(etypList, itemName);
+
+                if (similarItem != null) {
+                    // Prompt user to confirm if they want to update the similar item
+                    new AlertDialog.Builder(this)
+                            .setTitle("Βρέθηκε παρόμοιο στοιχείο")
+                            .setMessage("Ποιό απ' τα δύο να προστεθεί στη λίστα;")
+                            .setPositiveButton(similarItem.getName(), (innerDialog, innerWhich) -> {
+                                // Update the existing item
+                                int newQuantity = similarItem.getQuantity() + itemQuantity;
+                                dbHelper.updateEtypItemQuantity(similarItem.getId(), newQuantity);
+                                Toast.makeText(this, "Η ποσότητα ενημερώθηκε.", Toast.LENGTH_SHORT).show();
+                                updateSuggestions();
+                                loadEtypItems();
+                                loadSortPreference();
+                            })
+                            .setNegativeButton(itemName, (innerDialog, innerWhich) -> {
+                                // Add a new item
+                                dbHelper.insertEtypItem(itemName, itemQuantity);
+                                Toast.makeText(this, "Προστέθηκε νέο στοιχείο.", Toast.LENGTH_SHORT).show();
+                                updateSuggestions();
+                                loadEtypItems();
+                                loadSortPreference();
+                            })
+                            .show();
                 } else {
-                    // Item does not exist, insert it as a new item
-                    dbHelper.insertGroceryItem(itemName, itemQuantity);
+                    // Add a new item if no similar item is found
+                    dbHelper.insertEtypItem(itemName, itemQuantity);
+                    Toast.makeText(this, "Προστέθηκε νέο στοιχείο.", Toast.LENGTH_SHORT).show();
+                    updateSuggestions();
+                    loadEtypItems();
+                    loadSortPreference();
                 }
-                // Groceries updated successfully
-                Toast.makeText(EtypListActivity.this, "Επιτυχής προσθήκη/ενημέρωση", Toast.LENGTH_SHORT).show();
-                updateSuggestions();
-                loadGroceryItems();
             } else {
                 // Groceries not updated, notify user to correct their input
                 Toast.makeText(EtypListActivity.this, "Ρε ΑΜΕΑ, βάλε έγκυρες τιμές", Toast.LENGTH_SHORT).show();
@@ -271,7 +292,7 @@ public class EtypListActivity extends BaseActivity implements SearchView.OnQuery
 
     private void updateSuggestions() {
         List<String> itemNames = new ArrayList<>();
-        for (EtypItem item : groceryList) {
+        for (EtypItem item : etypList) {
             itemNames.add(item.getName());
         }
 
@@ -282,13 +303,13 @@ public class EtypListActivity extends BaseActivity implements SearchView.OnQuery
 
 
     // This method is to be used when the user has bought groceries,
-    // and will move all items from the grocery list to the pantry
-    private void moveGroceryItemsToPantry() {
+    // and will move all items from the etyp list to the pantry
+    private void moveEtypItemsToPantry() {
         // Create a list to hold the items to be moved
         List<EtypItem> itemsToMove = new ArrayList<>();
 
         // Check if any items are highlighted
-        for (EtypItem etypItem : groceryList) {
+        for (EtypItem etypItem : etypList) {
             if (etypItem.isChecked()) {
                 itemsToMove.add(etypItem); // Add checked items to the list
             }
@@ -296,37 +317,37 @@ public class EtypListActivity extends BaseActivity implements SearchView.OnQuery
 
         // If no items are highlighted, move all items
         if (itemsToMove.isEmpty()) {
-            itemsToMove.addAll(groceryList); // Add all items if none are selected
+            itemsToMove.addAll(etypList); // Add all items if none are selected
         }
 
         // Move the selected or all items
         if (!itemsToMove.isEmpty()) {
             for (EtypItem etypItem : itemsToMove) {
                 String itemName = etypItem.getName();
-                int groceryQuantity = etypItem.getQuantity();
+                int etypQuantity = etypItem.getQuantity();
 
                 // Check if the item already exists in the pantry
                 PantryItem pantryItem = dbHelper.getPantryItemByName(itemName);
 
                 if (pantryItem != null) {
                     // Item exists in the pantry, update its quantity
-                    int newQuantity = pantryItem.getQuantity() + groceryQuantity;
+                    int newQuantity = pantryItem.getQuantity() + etypQuantity;
                     dbHelper.updatePantryItemQuantity(pantryItem.getId(), newQuantity);
                 } else {
                     // Item does not exist, add it to the pantry
-                    dbHelper.insertPantryItem(itemName, groceryQuantity);
+                    dbHelper.insertPantryItem(itemName, etypQuantity);
                 }
 
                 // Log the transaction in the history
                 String currentDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
-                dbHelper.insertTransactionHistory(itemName, groceryQuantity, currentDate);
+                dbHelper.insertTransactionHistory(itemName, etypQuantity, currentDate);
 
-                // Remove the item from the grocery list
-                dbHelper.deleteGroceryItem(etypItem.getId());
+                // Remove the item from the etyp list
+                dbHelper.deleteEtypItem(etypItem.getId());
             }
 
-            // Clear the selected items from the grocery list
-            groceryList.removeAll(itemsToMove);
+            // Clear the selected items from the etyp list
+            etypList.removeAll(itemsToMove);
             adapter.notifyDataSetChanged();
 
             // Notify user
@@ -392,5 +413,42 @@ public class EtypListActivity extends BaseActivity implements SearchView.OnQuery
 //                .setPositiveButton("OK", (dialog, which) -> dialog.dismiss())
 //                .show();
 //    }
+
+    // Find similar items based on Levenshtein distance
+    private EtypItem findSimilarItem(List<EtypItem> existingItems, String newItemName) {
+        final int SIMILARITY_THRESHOLD = 3; // Adjust this value as needed
+        EtypItem closestMatch = null;
+        int closestDistance = Integer.MAX_VALUE;
+
+        for (EtypItem item : existingItems) {
+            int distance = calculateLevenshteinDistance(newItemName.toLowerCase(), item.getName().toLowerCase());
+            if (distance < SIMILARITY_THRESHOLD && distance < closestDistance) {
+                closestMatch = item;
+                closestDistance = distance;
+            }
+        }
+
+        return closestMatch;
+    }
+
+    // Levenshtein distance algorithm
+    private int calculateLevenshteinDistance(String s1, String s2) {
+        int[][] dp = new int[s1.length() + 1][s2.length() + 1];
+
+        for (int i = 0; i <= s1.length(); i++) {
+            for (int j = 0; j <= s2.length(); j++) {
+                if (i == 0) {
+                    dp[i][j] = j;
+                } else if (j == 0) {
+                    dp[i][j] = i;
+                } else {
+                    dp[i][j] = Math.min(dp[i - 1][j - 1] + (s1.charAt(i - 1) == s2.charAt(j - 1) ? 0 : 1),
+                            Math.min(dp[i - 1][j] + 1, dp[i][j - 1] + 1));
+                }
+            }
+        }
+
+        return dp[s1.length()][s2.length()];
+    }
 
 }

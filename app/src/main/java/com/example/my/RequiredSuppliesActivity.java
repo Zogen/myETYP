@@ -228,7 +228,7 @@ public class RequiredSuppliesActivity extends BaseActivity implements SearchView
         AutoCompleteTextView itemNameInput = dialogView.findViewById(R.id.item_name_input);
         EditText itemQuantityInput = dialogView.findViewById(R.id.item_quantity_input);
 
-        // Prepare suggestions based on the current grocery list
+        // Prepare suggestions based on the current etyp list
         List<String> itemNames = new ArrayList<>();
         for (RequiredSupplyItem item : suppliesList) {
             itemNames.add(item.getName());
@@ -250,27 +250,48 @@ public class RequiredSuppliesActivity extends BaseActivity implements SearchView
             // Check that both fields have been filled and that quantity is > 0
             if (!itemName.isEmpty() && !itemQuantityStr.isEmpty()) {
                 int itemQuantity = Integer.parseInt(itemQuantityStr);
-                RequiredSupplyItem existingSupplyItem = dbHelper.getSupplyItemByName(itemName);
-                if (existingSupplyItem != null) {
-                    // Item exists, update its quantity
-                    int newQuantity = existingSupplyItem.getDesiredQuantity() + itemQuantity;
-                    existingSupplyItem.setQuantity(newQuantity);
-                    dbHelper.updateSupplyItemQuantity(existingSupplyItem.getId(), newQuantity);
+
+                // Find similar items
+                RequiredSupplyItem similarItem = findSimilarItem(suppliesList, itemName);
+
+                if (similarItem != null) {
+                    // Prompt user to confirm if they want to update the similar item
+                    new AlertDialog.Builder(this)
+                            .setTitle("Βρέθηκε παρόμοιο στοιχείο")
+                            .setMessage("Ποιό απ' τα δύο να προστεθεί στη λίστα;")
+                            .setPositiveButton(similarItem.getName(), (innerDialog, innerWhich) -> {
+                                // Update the existing item
+                                int newQuantity = similarItem.getDesiredQuantity() + itemQuantity;
+                                dbHelper.updateSupplyItemQuantity(similarItem.getId(), newQuantity);
+                                Toast.makeText(this, "Η ποσότητα ενημερώθηκε.", Toast.LENGTH_SHORT).show();
+                                updateSuggestions();
+                                loadRequiredSupplies();
+                                loadSortPreference();
+                            })
+                            .setNegativeButton(itemName, (innerDialog, innerWhich) -> {
+                                // Add a new item
+                                dbHelper.insertRequiredSupply(itemName, itemQuantity);
+                                Toast.makeText(this, "Προστέθηκε νέο στοιχείο.", Toast.LENGTH_SHORT).show();
+                                updateSuggestions();
+                                loadRequiredSupplies();
+                                loadSortPreference();
+                            })
+                            .show();
                 } else {
-                    // Item does not exist, insert it as a new item
+                    // Add a new item if no similar item is found
                     dbHelper.insertRequiredSupply(itemName, itemQuantity);
+                    Toast.makeText(this, "Προστέθηκε νέο στοιχείο.", Toast.LENGTH_SHORT).show();
+                    updateSuggestions();
+                    loadRequiredSupplies();
+                    loadSortPreference();
                 }
-                // Groceries updated successfully
-                Toast.makeText(RequiredSuppliesActivity.this, "Επιτυχής προσθήκη/ενημέρωση", Toast.LENGTH_SHORT).show();
-                updateSuggestions();
-                loadRequiredSupplies();
             } else {
                 // Groceries not updated, notify user to correct their input
                 Toast.makeText(RequiredSuppliesActivity.this, "Ρε ΑΜΕΑ, βάλε έγκυρες τιμές", Toast.LENGTH_SHORT).show();
             }
         });
 
-        builder.setNegativeButton("Ακυρο", (dialog, which) -> dialog.cancel());
+        builder.setNegativeButton("Ακυροοο", (dialog, which) -> dialog.cancel());
 
         builder.show();
     }
@@ -298,13 +319,13 @@ public class RequiredSuppliesActivity extends BaseActivity implements SearchView
 
             if (quantityToAdd > 0) {
                 // Check if the item already exists in etyp list
-                EtypItem etypItem = dbHelper.getGroceryItemByName(supplyItem.getName());
+                EtypItem etypItem = dbHelper.getEtypItemByName(supplyItem.getName());
 
                 if (etypItem != null && etypItem.getQuantity() >= quantityToAdd) {
                     continue;
                 } else if (etypItem != null && etypItem.getQuantity() < quantityToAdd) {
-                    dbHelper.updateGroceryItemQuantity(etypItem.getId(), quantityToAdd);
-                } else if (etypItem == null) {dbHelper.insertGroceryItem(supplyItem.getName(), quantityToAdd);}
+                    dbHelper.updateEtypItemQuantity(etypItem.getId(), quantityToAdd);
+                } else if (etypItem == null) {dbHelper.insertEtypItem(supplyItem.getName(), quantityToAdd);}
 
             }
         }
@@ -331,6 +352,43 @@ public class RequiredSuppliesActivity extends BaseActivity implements SearchView
                 sortListAlphabetically(false); // Z to A
                 break;
         }
+    }
+
+    // Find similar items based on Levenshtein distance
+    private RequiredSupplyItem findSimilarItem(List<RequiredSupplyItem> existingItems, String newItemName) {
+        final int SIMILARITY_THRESHOLD = 3; // Adjust this value as needed
+        RequiredSupplyItem closestMatch = null;
+        int closestDistance = Integer.MAX_VALUE;
+
+        for (RequiredSupplyItem item : existingItems) {
+            int distance = calculateLevenshteinDistance(newItemName.toLowerCase(), item.getName().toLowerCase());
+            if (distance < SIMILARITY_THRESHOLD && distance < closestDistance) {
+                closestMatch = item;
+                closestDistance = distance;
+            }
+        }
+
+        return closestMatch;
+    }
+
+    // Levenshtein distance algorithm
+    private int calculateLevenshteinDistance(String s1, String s2) {
+        int[][] dp = new int[s1.length() + 1][s2.length() + 1];
+
+        for (int i = 0; i <= s1.length(); i++) {
+            for (int j = 0; j <= s2.length(); j++) {
+                if (i == 0) {
+                    dp[i][j] = j;
+                } else if (j == 0) {
+                    dp[i][j] = i;
+                } else {
+                    dp[i][j] = Math.min(dp[i - 1][j - 1] + (s1.charAt(i - 1) == s2.charAt(j - 1) ? 0 : 1),
+                            Math.min(dp[i - 1][j] + 1, dp[i][j - 1] + 1));
+                }
+            }
+        }
+
+        return dp[s1.length()][s2.length()];
     }
 
 }

@@ -22,28 +22,28 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EtypAdapter extends RecyclerView.Adapter<EtypAdapter.GroceryViewHolder> {
+public class EtypAdapter extends RecyclerView.Adapter<EtypAdapter.EtypViewHolder> {
 
     private Context context;
-    private List<EtypItem> groceryList;
+    private List<EtypItem> etypList;
     private DatabaseHelper dbHelper;
 
-    public EtypAdapter(Context context, List<EtypItem> groceryList, DatabaseHelper dbHelper) {
+    public EtypAdapter(Context context, List<EtypItem> etypList, DatabaseHelper dbHelper) {
         this.context = context;
-        this.groceryList = groceryList;
+        this.etypList = etypList;
         this.dbHelper = dbHelper;
     }
 
     @NonNull
     @Override
-    public GroceryViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public EtypViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(context).inflate(R.layout.list_item, parent, false);
-        return new GroceryViewHolder(view);
+        return new EtypViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull GroceryViewHolder holder, int position) {
-        EtypItem item = groceryList.get(position);
+    public void onBindViewHolder(@NonNull EtypViewHolder holder, int position) {
+        EtypItem item = etypList.get(position);
 
         // Set item name and quantity
         holder.itemName.setText(item.getName());
@@ -70,15 +70,15 @@ public class EtypAdapter extends RecyclerView.Adapter<EtypAdapter.GroceryViewHol
                 // Decrease quantity by 1
                 int newQuantity = currentQuantity - 1;
                 item.setQuantity(newQuantity);
-                dbHelper.updateGroceryItem(item);
-                dbHelper.updateGroceryItemQuantity(item.getId(), newQuantity);
+                dbHelper.updateEtypItem(item);
+                dbHelper.updateEtypItemQuantity(item.getId(), newQuantity);
                 notifyItemChanged(position);
             } else {
                 // If quantity is 1, remove the item
-                dbHelper.deleteGroceryItem(item.getId());
-                groceryList.remove(position);
+                dbHelper.deleteEtypItem(item.getId());
+                etypList.remove(position);
                 notifyItemRemoved(position);
-                notifyItemRangeChanged(position, groceryList.size());
+                notifyItemRangeChanged(position, etypList.size());
                 Toast.makeText(context, "Δεν χρειαζόμαστε " + item.getName(), Toast.LENGTH_SHORT).show();
             }
         });
@@ -87,8 +87,8 @@ public class EtypAdapter extends RecyclerView.Adapter<EtypAdapter.GroceryViewHol
         holder.incrementButton.setOnClickListener(v -> {
             int newQuantity = item.getQuantity() + 1;
             item.setQuantity(newQuantity);
-            dbHelper.updateGroceryItem(item);
-            dbHelper.updateGroceryItemQuantity(item.getId(), newQuantity);
+            dbHelper.updateEtypItem(item);
+            dbHelper.updateEtypItemQuantity(item.getId(), newQuantity);
             notifyItemChanged(position);
         });
 
@@ -97,23 +97,23 @@ public class EtypAdapter extends RecyclerView.Adapter<EtypAdapter.GroceryViewHol
             @Override
             public void onClick(View v) {
                 // Remove item from database
-                dbHelper.deleteGroceryItem(item.getId());
+                dbHelper.deleteEtypItem(item.getId());
                 // Remove item from list and notify adapter
-                groceryList.remove(position);
+                etypList.remove(position);
                 notifyItemRemoved(position);
-                notifyItemRangeChanged(position, groceryList.size());
+                notifyItemRangeChanged(position, etypList.size());
             }
         });
 
         // Long press listener to update item name and quantity
         holder.itemView.setOnLongClickListener(v -> {
-            showEditGroceryItemDialog(item, position);
+            showEditEtypItemDialog(item, position);
             return true;
         });
 
     }
 
-    private void showEditGroceryItemDialog(EtypItem etypItem, int position) {
+    private void showEditEtypItemDialog(EtypItem etypItem, int position) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle("Επεξεργασία αντικειμένου");
 
@@ -145,11 +145,11 @@ public class EtypAdapter extends RecyclerView.Adapter<EtypAdapter.GroceryViewHol
                 // Update etyp item with new values
                 etypItem.setName(newName);
                 etypItem.setQuantity(newQuantity);
-                dbHelper.updateGroceryItem(etypItem);
-                dbHelper.updateGroceryItemQuantity(etypItem.getId(), newQuantity);
+                dbHelper.updateEtypItem(etypItem);
+                dbHelper.updateEtypItemQuantity(etypItem.getId(), newQuantity);
 
                 // Notify the adapter about the change
-                groceryList.set(position, etypItem);
+                etypList.set(position, etypItem);
                 notifyItemChanged(position);
                 Toast.makeText(context, "Επιτυχής ενημέρωση", Toast.LENGTH_SHORT).show();
             } else {
@@ -163,21 +163,21 @@ public class EtypAdapter extends RecyclerView.Adapter<EtypAdapter.GroceryViewHol
 
     @Override
     public int getItemCount() {
-        return groceryList.size();
+        return etypList.size();
     }
 
     public void setFilter(ArrayList<EtypItem> newList){
-        groceryList = new ArrayList<>();
-        groceryList.addAll(newList);
+        etypList = new ArrayList<>();
+        etypList.addAll(newList);
         notifyDataSetChanged();
     }
 
-    public static class GroceryViewHolder extends RecyclerView.ViewHolder {
+    public static class EtypViewHolder extends RecyclerView.ViewHolder {
         TextView itemName, itemQuantity;
         ImageButton removeItemButton, decrementButton, incrementButton;
         CardView cardView;
 
-        public GroceryViewHolder(@NonNull View itemView) {
+        public EtypViewHolder(@NonNull View itemView) {
             super(itemView);
             itemName = itemView.findViewById(R.id.itemName);
             itemQuantity = itemView.findViewById(R.id.itemQuantity);

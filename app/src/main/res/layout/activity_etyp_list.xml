@@ -6,14 +6,14 @@
     android:padding="16dp">
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/groceryRecyclerView"
+        android:id="@+id/etypRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:scrollbars="vertical" />
 
     <Button
-        android:id="@+id/addGroceryItemButton"
+        android:id="@+id/addEtypItemButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/add_etyp_item"
