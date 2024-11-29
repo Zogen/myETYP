@@ -47,7 +47,7 @@ public class PantryActivity extends BaseActivity implements SearchView.OnQueryTe
             actionBar.setDisplayHomeAsUpEnabled(true); // Enable the Up button
         }
 
-        //initializing activity components
+        // initializing activity components
         dbHelper = new DatabaseHelper(this);
         pantryRecyclerView = findViewById(R.id.pantryRecyclerView);
         pantryRecyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -55,11 +55,11 @@ public class PantryActivity extends BaseActivity implements SearchView.OnQueryTe
         adapter = new PantryAdapter(this, pantryList, dbHelper); // Pass 'this' as the listener
         pantryRecyclerView.setAdapter(adapter);
 
-        //method to load items registered in Pantry db table, implemented below
+        // method to load items registered in Pantry db table, implemented below
         loadPantryItems();
         loadSortPreference();
 
-        //button to add new item to pantry
+        // button to add new item to pantry
         Button addPantryItemButton = findViewById(R.id.addPantryItemButton);
         addPantryItemButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -314,17 +314,6 @@ public class PantryActivity extends BaseActivity implements SearchView.OnQueryTe
                 break;
         }
     }
-
-//    // Method to set the pantry updated flag in SharedPreferences
-//    private void setPantryUpdatedFlag() {
-//        SharedPreferences.Editor editor = sharedPreferences.edit();
-//        editor.putBoolean(PANTRY_UPDATED_KEY, true); // Set the flag to true
-//        editor.apply();
-//    }
-//
-//    public void onPantryItemRemoved() {
-//        setPantryUpdatedFlag();
-//    }
 
     // Find similar items based on Levenshtein distance
     private PantryItem findSimilarItem(List<PantryItem> existingItems, String newItemName) {
