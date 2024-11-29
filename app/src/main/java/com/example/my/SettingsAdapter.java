@@ -128,7 +128,7 @@ public class SettingsAdapter extends RecyclerView.Adapter<SettingsAdapter.Settin
 
                         // Set dialog content
                         TextView newTextView = dialogView.findViewById(R.id.new_text);
-                        String newHtml = loadHtmlFromAsset("new.html");
+                        String newHtml = loadHtmlFromAsset("new.txt");
 
                         if(newHtml != null){
                             newTextView.setText(Html.fromHtml(newHtml));
@@ -151,7 +151,7 @@ public class SettingsAdapter extends RecyclerView.Adapter<SettingsAdapter.Settin
                         // Set dialog content
                         TextView faqTextView = dialogView1.findViewById(R.id.faq_text);
 
-                        String faqHtml = loadHtmlFromAsset("faq.html");
+                        String faqHtml = loadHtmlFromAsset("faq.txt");
 
                         if(faqHtml != null){
                             faqTextView.setText(Html.fromHtml(faqHtml));
